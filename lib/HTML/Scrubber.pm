@@ -474,7 +474,9 @@ sub _scrub_str {
             if ( length $text ) {
                 $outstr .= "</$t>";
             }
-            else {
+            elsif ( length $s->{_r} ) {
+
+                # an empty string has no last position
                 substr $s->{_r}, -1, 0, ' /';
             }
         }
