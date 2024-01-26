@@ -396,18 +396,36 @@ sub _validate_start {
     $r = $s->{_rules}->{$r};
     my %f;
 
-    for my $k ( keys %$a ) {
+    # TODO: document the real behavior
+    # Let the attribute callback decide that the whole tag is skipped.
+    # Not that this only affects the start tag. The corresponding end tag would still be printed.
+    # looo in the original order, just to have defined behavior
+    for my $k ( @$as ) {
         my $check = exists $r->{$k} ? $r->{$k} : exists $r->{'*'} ? $r->{'*'} : next;
 
         if ( ref $check eq 'CODE' ) {
-            my @v = $check->( $s, $t, $k, $a->{$k}, $a, \%f );
+            my $rewrite;
+            my @v = $check->( $s, $t, $k, $a->{$k}, $a, \%f, \$rewrite );
+
+            # Stop processing the args when that special varible was set.
+            # Returning early is fine, because the callback has complete information
+            # about the attributes.
+            return $rewrite if defined $rewrite;
+
+            # empty list indicates that the attribute should be skipped.
             next unless @v;
+
+            # use the value from the callback
             $f{$k} = shift @v;
         }
         elsif ( ref $check || length($check) > 1 ) {
+
+            # keep the original value
             $f{$k} = $a->{$k} if $a->{$k} =~ m{$check};
         }
         elsif ($check) {
+
+            # keep the original value
             $f{$k} = $a->{$k};
         }
     }
