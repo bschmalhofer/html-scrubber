@@ -383,13 +383,13 @@ sub _out {
     return 1;
 }
 
-=for comment _validate
+=for comment _validate_start
 Uses $self->{_rules} to do attribute validation.
 Takes tag, rule('_' || $tag), attrref.
 
 =cut
 
-sub _validate {
+sub _validate_start {
     my ( $s, $t, $r, $a, $as ) = @_;
     return "<$t>" unless %$a;
 
@@ -444,16 +444,16 @@ sub _scrub_str {
         {
             if ( ref $s->{_rules}->{$t} )    # is it complicated?(not simple;)
             {
-                $outstr .= $s->_validate( $t, $t, $a, $as );
+                $outstr .= $s->_validate_start( $t, $t, $a, $as );
             }
             elsif ( $s->{_rules}->{$t} )     # validate using default attribute rule
             {
-                $outstr .= $s->_validate( $t, '_', $a, $as );
+                $outstr .= $s->_validate_start( $t, '_', $a, $as );
             }
         }
         elsif ( $s->{_rules}->{'*'} )        # default allow tags
         {
-            $outstr .= $s->_validate( $t, '_', $a, $as );
+            $outstr .= $s->_validate_start( $t, '_', $a, $as );
         }
     }
     elsif ( $e eq 'end' ) {
